@@ -15,6 +15,15 @@ const app = express();
 
 app.use(cors({ origin: corsUrl, optionsSuccessStatus: 200 }));
 
+// Add root route handler
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Hello from chat server',
+    port: process.env.PORT,
+    instance: process.pid
+  });
+});
+
 // catch 404 and forward to error handler
 app.use((req, res, next) => next(new NotFoundError()));
 

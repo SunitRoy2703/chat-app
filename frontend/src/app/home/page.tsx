@@ -81,11 +81,11 @@ const useStyles = createStyles((theme) => ({
 
 export default function Home() {
     const { classes } = useStyles();
-    const { socket, connect } = useSocketStore(); // deconstructing socket and its method from socket store
-    const chatViewportRef = useRef<HTMLDivElement>(null); // binding chat viewport ref to scroll to bottom
-    const [targetSocketId, setTargetSocketId] = useState<string>(""); // target socket id input value
-    const [messages, setMessages] = useState<MessageWithMe[]>([]); // show messages on ScrollArea
-    const [onlineUsers, setOnlineUsers] = useState<Record<string, string>>({}); // online users
+    const { socket, connect } = useSocketStore();
+    const chatViewportRef = useRef<HTMLDivElement>(null);
+    const [targetSocketId, setTargetSocketId] = useState<string>("");
+    const [messages, setMessages] = useState<MessageWithMe[]>([]);
+    const [onlineUsers, setOnlineUsers] = useState<Record<string, string>>({});
 
     const scrollToBottom = () => {
         chatViewportRef?.current?.scrollTo({
@@ -94,9 +94,12 @@ export default function Home() {
         });
     };
 
+    // Connect on mount and reconnect on socket URL change
     useEffect(() => {
-        connect();
-    }, [connect]);
+        if (!socket?.connected) {
+            connect();
+        }
+    }, [connect, socket?.connected]);
 
     useEffect(() => {
         if (!socket) return;
@@ -165,7 +168,7 @@ export default function Home() {
                                                     radius="xl"
                                                 >
                                                     {onlineUsers[message.from] &&
-                                                    onlineUsers[message.from].length > 5
+                                                        onlineUsers[message.from].length > 5
                                                         ? `${onlineUsers[message.from].slice(0, 1)}`
                                                         : onlineUsers[message.from]}
                                                 </Avatar>

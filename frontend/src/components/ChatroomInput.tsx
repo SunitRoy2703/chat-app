@@ -7,27 +7,30 @@ import toast from "react-hot-toast";
 type Props = {
     targetSocketId: string;
 };
+
 const useStyles = createStyles((theme) => ({
     Textarea: {
         border: "none",
     },
 }));
+
 const ChatroomInput: FC<Props> = ({ targetSocketId }) => {
-    const { socket, emitMode, emit } = useSocketStore(); // deconstructing socket and its method from socket store
-    const [message, setMessage] = useState(""); // message input value
-    const messageInputRef = useRef<HTMLTextAreaElement>(null); // binding message input ref to focus
+    const { socket, emitMode, emit } = useSocketStore();
+    const [message, setMessage] = useState("");
+    const messageInputRef = useRef<HTMLTextAreaElement>(null);
     const { classes } = useStyles();
 
     const sendMessage = () => {
         if (!message) return toast.error("Please enter a message");
         if (!socket?.connected) return toast.error("Please reconnect server first");
+        if (!socket.id) return toast.error("Socket ID not available");
         if (!targetSocketId && emitMode === "private_message")
             return toast.error("Please enter a target socket id");
 
         switch (emitMode) {
             case "private_message": {
                 const messageObj = {
-                    from: socket?.id,
+                    from: socket.id,
                     to: targetSocketId,
                     timestamp: Date.now(),
                     message,
@@ -37,7 +40,7 @@ const ChatroomInput: FC<Props> = ({ targetSocketId }) => {
             }
             case "broadcast": {
                 const broadcastObj = {
-                    from: socket?.id,
+                    from: socket.id,
                     timestamp: Date.now(),
                     message,
                 };
@@ -50,6 +53,7 @@ const ChatroomInput: FC<Props> = ({ targetSocketId }) => {
         setMessage("");
         messageInputRef.current?.focus();
     };
+
     const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === "Enter" && e.altKey !== true && e.shiftKey !== true && e.ctrlKey !== true) {
             e.preventDefault();
@@ -70,8 +74,8 @@ const ChatroomInput: FC<Props> = ({ targetSocketId }) => {
                 placeholder="Type something..."
                 onKeyDown={handleKeyDown}
             />
-            <ActionIcon radius="xl">
-                <IconSend stroke={1.5} onClick={sendMessage} />
+            <ActionIcon radius="xl" onClick={sendMessage}>
+                <IconSend stroke={1.5} />
             </ActionIcon>
         </Group>
     );

@@ -5,6 +5,7 @@ import useBasicStore from "@/store/basic";
 import useSocketStore from "@/store/socket";
 import { useEffect } from "react";
 import { SocketOnlineUser } from "@/types/next";
+
 type NameModalProps = {
     opened: boolean;
     onClose: () => void;
@@ -22,10 +23,9 @@ const NameModal: FC<NameModalProps> = ({ opened, onClose }) => {
     });
 
     useEffect(() => {
-        if (!socket) return;
-        emit("join", { socketId: socket.id, name: name });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [socket?.id, name]);
+        if (!socket?.id || !name) return;
+        emit("join", { socketId: socket.id, name });
+    }, [socket?.id, name, emit]);
 
     // Function to handle form submission
     const handleSubmit = ({ name }: { name: string }) => {
